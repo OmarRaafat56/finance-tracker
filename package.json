@@ -1,0 +1,71 @@
+{
+  "name": "finance-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "author": "Finance Tracker",
+  "description": "Personal finance desktop app with projections",
+  "main": "dist/main/main.js",
+  "scripts": {
+    "dev": "concurrently -k -n VITE,MAIN,ELECTRON -c blue,green,magenta \"npm:dev:vite\" \"npm:dev:main\" \"npm:dev:electron\"",
+    "dev:vite": "vite",
+    "dev:main": "shx mkdir -p dist/db && shx cp src/db/schema.sql dist/db/schema.sql && tsc -p tsconfig.main.json --watch",
+    "dev:electron": "wait-on tcp:5173 dist/main/main.js && electron .",
+    "build:renderer": "vite build",
+    "build:main": "tsc -p tsconfig.main.json && shx mkdir -p dist/db && shx cp src/db/schema.sql dist/db/schema.sql",
+    "build": "npm run build:renderer && npm run build:main",
+    "pack": "npm run build && cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "sql.js": "^1.11.0",
+    "date-fns": "^3.6.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "recharts": "^2.12.7",
+    "zustand": "^4.5.4"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@types/sql.js": "^1.4.9",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.19",
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3",
+    "postcss": "^8.4.39",
+    "shx": "^0.3.4",
+    "tailwindcss": "^3.4.4",
+    "typescript": "^5.5.3",
+    "vite": "^5.3.1",
+    "vitest": "^1.6.0",
+    "wait-on": "^7.2.0"
+  },
+  "build": {
+    "appId": "com.example.financetracker",
+    "productName": "Finance Tracker",
+    "files": [
+      "dist/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "asarUnpack": [
+      "node_modules/sql.js/dist/sql-wasm.wasm"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    }
+  }
+}
